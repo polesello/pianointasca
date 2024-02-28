@@ -1,0 +1,34 @@
+{
+    "short_name": "Pianointasca",
+    "name": "Piano in tasca",
+    "icons": [
+      {
+        "src": "img/icon-512.png",
+        "type": "image/png",
+        "sizes": "512x512",
+        "purpose": "any"
+      },
+      {
+        "src": "img/icon-192.png",
+        "type": "image/png",
+        "sizes": "192x192",
+        "purpose": "maskable"
+      }
+    ],
+    "screenshots" : [
+      {
+        "src": "img/screenshot.png",
+        "sizes": "400x700",
+        "type": "image/png",
+        "label": "Schermata principale"
+      }
+    ],
+    "start_url": "index.html",
+    "background_color": "#f6d365",
+    "orientation": "portrait-primary",
+    "display_override": ["window-controls-overlay"],
+    "display": "standalone",
+    "scope": "/",
+    "theme_color": "#f6d365",
+    "description": "Metti il telefono in tasca e suona"
+}

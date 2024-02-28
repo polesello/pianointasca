@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Piano in tasca</title>
+  <meta name="viewport" content="width=device-width, user-scalable=no">
+  <meta name="description" content="Metti il telefono in tasca e fai un passo verso le note">
+  <meta property="og:description" content="Metti il telefono in tasca e fai un passo verso le note">
+  <meta property="og:title" content="Piano in tasca">
+  <meta property="og:url" content="https://pianointasca.it/">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://pianointasca.it/img/screenshot.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#f6d365">
+  <link rel="icon" href="img/icon-512.png" type="image/png">
+  <link rel="apple-touch-icon" href="img/icon-512.png">
+  <style>
+    :root {
+        --button1: hsl(0, 100%, 70%);
+        --button2: hsl(135, 100%, 70%);
+        --button3: hsl(225, 100%, 70%);
+    }
+    * {
+        box-sizing: border-box;
+    }
+
+    #wrapper {
+        overflow-x: hidden;
+        position: relative;
+    }
+    
+    body {
+        font-family: sans-serif;
+        user-select: none;
+        padding: 0;
+        margin: 0;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    #main {
+        background: linear-gradient(0, #fda085, #f6d365);
+        height: 100vh;
+        height: 100dvh;
+    }
+    
+    #schema {
+        width: 360px;
+        height: 360px;
+        margin: 0 auto;
+        display: block;
+        position: relative;
+    }
+
+    #schema path {
+        opacity: .8;
+        transition: all .3s;
+    }
+
+    #schema path.candidate {
+        opacity: 1;
+    }
+
+    #schema path.active {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+    
+
+    #calibration {
+        background: url(img/man.png) no-repeat center top;
+        background-size: contain;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: none;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #fff;
+        font-size: 20px;
+    }
+
+    #calibration:active {
+        transform: scale(120%) translate(-40%, -40%);
+    }
+
+  
+    .external {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: absolute;
+        bottom: 20px;
+        left: 30px;
+        right: 30px;
+    }
+
+    #instructions a.figherie {
+        border: none;
+        text-decoration: none;
+        display: inline-block;
+        width: 36px;
+        height: 36px;
+        border-radius: 4px;
+        line-height: 32px;
+        text-align: center;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 20px;
+        padding: 0;
+        background-color: #000;
+        color: #89b758;
+        border: 2px solid;
+        box-shadow: 3px 3px;
+    }
+
+    a.figherie {
+        background-color: #000;
+        color: #89b758;
+        border: 2px solid;
+        box-shadow: 3px 3px;
+    }
+
+    input {
+        background-color: var(--button3);
+        color: #fff;
+        border: none;
+        padding: 6px 20px;
+        border-radius: 99px;
+        cursor: pointer;
+    }
+
+    #show-info {
+        text-decoration: none;
+        background-color: var(--button2);
+        padding: 0 20px;
+        border-radius: 99px;
+        color: #000;
+        font-weight: bold;
+        display: inline-block;
+        height: 50px;
+        line-height: 50px;
+        border: 1px solid #fff;
+    }
+
+    select {
+        padding: 10px;
+        font-size: 16px;
+        border-radius: 99px;
+        background-color: var(--button3);
+        color: #fff;
+        height: 50px;
+        border: 1px solid #fff;
+    }
+
+
+    #instructions {
+        line-height: 1.4;
+        padding: 20px 40px;
+        background: #fff;
+        position: absolute;
+        width: 100vw;
+        left: 100vw;
+        height: 100vh;
+        height: 100dvh;
+        top: 0;
+        transition: left .5s;
+        /* background gradiente colorato con tinte pastello */
+        background: linear-gradient(0, #fda085, #f6d365);
+    }
+
+    #instructions a {
+        color: var(--button3);
+    }
+
+    h2 {
+        background-color: var(--button1);
+        color: #fff;
+        position: relative;
+        padding: 5px 20px;
+        font-size: 18px;
+        margin-top: 0;
+    }
+
+    #close-instructions {
+        position: absolute;
+        top: calc(50% - 20px);
+        right: -20px;
+        background: #f00;
+        border: none;
+        color: #fff;
+        font-size: 20px;
+        height: 40px;
+        width: 40px;
+        text-align: center;
+        line-height: 38px;
+        border-radius: 50%;
+        cursor: pointer;
+        padding: 0;
+        border: 2px solid;
+    }
+
+    ol {
+        padding: 0;
+        margin: 0 0 0 30px;
+        list-style: none;
+        counter-reset: instructions;
+        font-size: 14px;
+    }
+
+    li {
+        position: relative;
+        counter-increment: instructions;
+        margin-bottom: 8px;
+    }
+
+    li::before {
+        content: counter(instructions);
+        color: #fff;
+        font-size: 12px;
+        background-color: var(--button3);
+        position: absolute;
+        left: -30px;
+        top: calc(50% - 10px);
+        width: 20px;
+        height: 20px;
+        line-height: 20px;
+        text-align: center;
+        border-radius: 50%;
+    }
+
+    form {
+        display: inline-block;
+    }
+
+    .title {
+        text-align: center;
+        font-variant: small-caps;
+        padding: 20px 0 0;
+    }
+
+    .title h1 {
+        margin: 20px 0;
+        display: flex;
+        justify-content: space-between;
+        border-top: 1px solid;
+        border-bottom: 1px solid;
+        border-left: 1px solid;
+        font-size: 18px;
+        font-weight: normal;
+    }
+    .title h1 span {
+        display: block;
+        width: 7.14%;
+        border-right: 1px solid;
+        padding: 30px 0 10px;
+        text-align: center;
+        background-color: #fff;
+        box-shadow: 5px 5px 3px rgba(0,0,0,.3);
+    }
+    .title h1 img {
+        width: 10px;
+    }
+    .title h1 span:nth-child(even) {
+        padding: 10px 0 30px;
+    }
+
+    .title img {
+        width: 80px;
+        display: block;
+        margin: 0 auto;
+    }
+ 
+
+  </style>
+</head>
+<body oncontextmenu="return !('ontouchstart' in window)">
+<div id="wrapper">
+<div id="main">
+    
+    <div class="title">
+        <img src="img/icon-512.png" alt="Piano in tasca">
+        <h1>
+            <span>p</span>
+            <span>i</span>
+            <span>a</span>
+            <span>n</span>
+            <span>o</span>
+            <span><img src="img/rest.png" alt="Pausa"></span>
+            <span>i</span>
+            <span>n</span>
+            <span><img src="img/rest.png" alt="Pausa"></span>
+            <span>t</span>
+            <span>a</span>
+            <span>s</span>
+            <span>c</span>
+            <span>a</span>
+        </h1>
+    </div>
+    <div id="schema">
+        <svg width="360" height="360" viewBox="0 0 360 360">
+            <g transform="translate(180,180)">
+            </g>
+        </svg>
+        <button type="button" id="calibration"></button>
+    </div>
+
+    <audio class="player" src=""></audio>
+    <audio class="player" src=""></audio>
+    <audio class="player" src=""></audio>
+    <audio class="player" src=""></audio>
+    <audio class="player" src=""></audio>
+    <audio class="player" src=""></audio>
+    <audio class="player" src=""></audio>
+    <audio class="player" src=""></audio>
+    <audio class="player" src=""></audio>
+    <audio class="player" src=""></audio>
+    <audio class="player" src=""></audio>
+    <audio class="player" src=""></audio>
+    <audio class="player" src=""></audio>
+    <audio class="player" src=""></audio>
+    <audio class="player" src=""></audio>
+    <audio class="player" src=""></audio>
+    <audio class="player" src=""></audio>
+
+    <div class="external">
+        <div>
+            <a href="#" id="show-info">Istruzioni</a>
+        </div>
+        <div>
+            <select id="mode">
+                <option value="8" selected>8 note</option>
+                <option value="5">5 note</option>
+                <option value="12">Scala cromatica</option>
+                <option value="15">Due ottave</option>
+                <option value="17">Für Elise</option>
+                <option value="4">L’amour toujours</option>
+                <option value="2">Pokeball</option>
+                <option value="3">Fart mode</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<div id="instructions">
+    <h2>Istruzioni
+        <button type="button" id="close-instructions">&times;</button>
+    </h2>
+    <ol>
+        <li>Mettiti in uno spazio ampio e silenzioso</li>
+        <li>Scarica lo <a href="note.pdf">schema delle note</a>, ritaglialo e disponilo attorno a te sul pavimento</li>
+        <li>Alza al massimo il volume del telefono</li>
+        <li>Girati in direzione della prima striscia (C/Do rosso) e tenendo il telefono davanti a te premi l’omino che sta al centro</li>
+        <li class="only-ios">Dai il consenso all’utilizzo dei sensori di movimento</li>
+        <li>Verifica che girando attorno a te stesso, suonino le note corrispondenti</li>
+        <li>Inserisci il telefono nella tasca anteriore dei pantaloni, con lo <strong>schermo rivolto davanti a te</strong> e l'<strong>altoparlante verso il basso</strong></li>
+        <li><strong>Sollevando la gamba</strong> farai suonare la nota che si trova davanti a te</li>
+
+
+        <li>Se vuoi, puoi provare anche altri schemi di disposizione delle note</li>
+        <li>Se non sai da dove cominciare, scarica lo spartito di <a href="jingle-bells.pdf">Jingle bells</a></li>
+
+        <li>Se ti piace, <form action="https://www.paypal.com/donate" method="post" target="_top">
+            <input type="hidden" name="hosted_button_id" value="RYR6ZEC8GNJNJ">
+            <input type="submit" value="offrimi una birra">
+        </form>
+        </li>
+        <li>Se vuoi sapere come funziona: <a href="https://figherie.it/app/pianointasca/" class="figherie">F</a></li>
+    </ol>
+</div>
+</div>
+<script>
+
+
+
+
+
+let playing = false
+let alpha0 = 0
+let currentAlpha = 0
+let lastPlayed = null
+const schema = document.getElementById('schema')
+
+const R_MAX = 146
+const R_MIN = 30
+let totalAngle = 360
+let totalNotes = 8
+
+
+
+
+const player = document.getElementById('player')
+
+
+
+let NOTE_SOUNDS = ['c4', 'd4', 'e4', 'f4', 'g4', 'a5', 'b5', 'c5', 'd5', 'e5', 'f5', 'g5', 'a6', 'b6', 'c6']
+let NOTE_NAMES = ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'A', 'B', 'C']
+
+const calibration = document.getElementById('calibration')
+
+
+
+
+const canvas = document.querySelector('#schema g')
+
+
+function createSchema(totalNotes, totalAngle) {
+    const sectorAngleDeg = totalAngle / totalNotes
+    const sectorAngle = sectorAngleDeg * Math.PI / 180
+
+
+    canvas.innerHTML = ''
+    for (let i=0; i < totalNotes; i++) {
+        const sectorAngle = totalAngle / totalNotes * Math.PI / 180
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+        const currAngle = (totalAngle / totalNotes * i - 90 - sectorAngleDeg / 2) * Math.PI / 180
+        const sector = `M ${R_MIN * Math.cos(currAngle)} ${R_MIN * Math.sin(currAngle)} L ${R_MAX * Math.cos(currAngle)} ${R_MAX * Math.sin(currAngle)} A ${R_MAX} ${R_MAX} 0 0 1 ${R_MAX * Math.cos(currAngle + sectorAngle)} ${R_MAX * Math.sin(currAngle + sectorAngle)} L ${R_MIN * Math.cos(currAngle + sectorAngle)} ${R_MIN * Math.sin(currAngle + sectorAngle)} A ${R_MIN} ${R_MIN} 0 0 0 ${R_MIN * Math.cos(currAngle)} ${R_MIN * Math.sin(currAngle)}`
+        path.setAttribute('d', sector)
+        path.setAttribute('stroke', 'black')
+        path.setAttribute('fill', 'hsl(' + (i * 360 / totalNotes) + ', 100%, 70%)')
+        path.setAttribute('notesound', NOTE_SOUNDS[i])
+        path.setAttribute('noteindex', i)
+        canvas.appendChild(path)
+
+        // add note name
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+        const x = (R_MAX - 30) * Math.cos(currAngle + sectorAngle / 2)
+        const y = (R_MAX - 30) * Math.sin(currAngle + sectorAngle / 2)
+        text.setAttribute('x', x)
+        text.setAttribute('y', y)
+        text.setAttribute('text-anchor', 'middle')
+        text.setAttribute('dominant-baseline', 'middle')
+        //text.setAttribute('fill', 'black')
+        //text.setAttribute('font-size', '12')
+        text.setAttribute('transform', 'rotate(' + (i * totalAngle / totalNotes ) + ',' + x + ',' + y + ')')
+        text.innerHTML = NOTE_NAMES[i]
+        canvas.appendChild(text)
+
+        document.querySelectorAll('.player')[i].setAttribute('src', 'notes/' + NOTE_SOUNDS[i] + '.mp3')
+    }
+
+    document.querySelectorAll('#schema path').forEach((el) => el.addEventListener('click', (event) => {
+        document.querySelectorAll('.player')[event.target.getAttribute('noteindex')].play()
+        event.target.classList.add('active')
+        setInterval(() => event.target.classList.remove('active'), 1000)
+    }))
+
+    document.querySelectorAll('#schema path').forEach((el) => el.addEventListener('mouseenter', (event) => {
+        document.querySelectorAll('.player')[event.target.getAttribute('noteindex')].play()
+        event.target.classList.add('active')
+        setInterval(() => event.target.classList.remove('active'), 1000)
+    }))
+}
+
+createSchema(totalNotes, totalAngle)
+
+
+function updateNote(event) {
+    const alpha = event.alpha
+
+    currentAlpha = alpha
+    const beta = event.beta
+
+    let angle = alpha0 - event.alpha
+    if (angle < 0) angle += 360
+
+    canvas.setAttribute('transform', 'rotate(' + -angle + ', 180, 180) translate(180,180)')
+
+    let angleWidth = totalAngle / totalNotes
+    let index = Math.floor((angle + angleWidth / 2) / angleWidth)
+    if (index == totalNotes) index = 0
+
+    const currentNote = document.querySelectorAll('#schema path')[index]
+    document.querySelectorAll('#schema path').forEach((el) => el.classList.remove('candidate'))
+    if (!currentNote.classList.contains('active')) currentNote.classList.add('candidate')
+
+    const note_name = NOTE_SOUNDS[index]
+
+    if (beta > -30) {
+        if (lastPlayed == note_name) return
+        if (lastPlayed != note_name) {
+            document.querySelectorAll('.player')[index].play()
+            playing = true
+            lastPlayed = note_name
+            document.querySelectorAll('#schema path').forEach((el) => el.classList.remove('active', 'candidate'))
+            currentNote.classList.add('active')
+        } 
+    } else {
+        if (playing) {
+            playing = false
+            lastPlayed = null
+            document.querySelectorAll('#schema path').forEach((el) => el.classList.remove('active', 'candidate'))
+        } 
+    }
+}
+
+
+
+
+
+
+
+// in iOS va richiesto il permesso
+let permissionGranted = false
+
+function getPermission () {
+    if (!permissionGranted) {
+        DeviceMotionEvent.requestPermission()
+            .then(response => {
+                if (response == "granted") {
+                    permissionGranted = true
+                    window.addEventListener('deviceorientation', updateNote)
+                }
+        })
+    }
+}
+
+let needPermission = false
+if (typeof(DeviceOrientationEvent) !== "undefined" && typeof(DeviceOrientationEvent.requestPermission) === "function") {
+    // iPhone
+    needPermission = true
+} else {
+    // Android
+    document.querySelector('.only-ios').style.display = 'none'
+    window.addEventListener('deviceorientation', updateNote)
+}
+
+
+calibration.addEventListener('click', () => {
+    if (needPermission) {
+        getPermission()
+    }
+    alpha0 = currentAlpha.toFixed(0)
+    player.play()
+})
+ 
+document.getElementById('show-info').addEventListener('click', (event) => {
+    event.preventDefault()
+    document.getElementById('instructions').style.left = '0'
+})
+
+document.getElementById('close-instructions').addEventListener('click', (event) => {
+    event.preventDefault()
+    document.getElementById('instructions').style.left = '100vw'
+})
+
+document.getElementById('mode').addEventListener('change', (event) => {
+    totalNotes = event.target.value
+    if (totalNotes == '12') {
+        NOTE_SOUNDS = ['c4', 'c-4', 'd4', 'd-4', 'e4', 'f4', 'f-4', 'g4', 'g-4', 'a5', 'a-5', 'b5', 'c5']
+        NOTE_NAMES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B', 'C']
+    } else if (totalNotes == '2') {
+        NOTE_SOUNDS = ['c4', 'c5']
+        NOTE_NAMES = ['C', 'C']
+    } else if (totalNotes == '3') {
+        NOTE_SOUNDS = ['fart1', 'fart2', 'fart3']
+        NOTE_NAMES = ['Fart 1', 'Fart 2', 'Fart 3']
+    } else if (totalNotes == '4') {
+        NOTE_SOUNDS = ['amour1', 'amour2', 'amour3', 'amour4']
+        NOTE_NAMES = ['Bar 1', 'Bar 2', 'Bar 3', 'Bar 4']
+    } else if (totalNotes == '17') {
+        NOTE_SOUNDS = ['e5', 'd-5', 'e5', 'd-5', 'e5', 'b5', 'd5', 'c5', 'a5', 'c4', 'e4', 'a5', 'b5', 'e4', 'g-4', 'b5', 'c5']
+        NOTE_NAMES = ['E', 'D♯', 'E', 'D♯', 'E', 'B', 'D', 'C', 'A', 'C', 'E', 'A', 'B', 'E', 'G♯', 'B', 'C']
+    }    
+    else {
+        NOTE_SOUNDS = ['c4', 'd4', 'e4', 'f4', 'g4', 'a5', 'b5', 'c5', 'd5', 'e5', 'f5', 'g5', 'a6', 'b6', 'c6']
+        NOTE_NAMES = ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'A', 'B', 'C']
+    }
+    createSchema(totalNotes, totalAngle)
+})
+
+// if ('serviceWorker' in navigator) {
+//     navigator.serviceWorker.register('/sw.js').then(function(
+//         registration) {
+//         console.log('Registration successful, scope is:',
+//             registration.scope)
+//     }).catch(function(error) {
+//         console.log(
+//             'Service worker registration failed, error:',
+//             error);
+//     })
+// }
+
+</script>
+
+</body>
+</html>
