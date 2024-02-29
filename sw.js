@@ -4,9 +4,10 @@ self.addEventListener('install', e => {
             return cache.addAll([
                 '/',
                 '/index.html',
-                '/img/1-notes.svg',
-                '/img/5-notes.svg',
-                '/img/8-notes.svg',
+                '/script.js',
+                '/style.css',
+                '/img/man.png',
+                '/img/rest.png',
                 '/notes/c4.mp3',
                 '/notes/d4.mp3',
                 '/notes/e4.mp3',

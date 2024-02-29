@@ -51,7 +51,7 @@ function createSchema(totalNotes) {
         document.querySelectorAll('.player')[i].setAttribute('src', 'notes/' + NOTE_SOUNDS[i] + '.mp3')
     }
 
-    document.querySelectorAll('#schema path').forEach((el) => el.addEventListener('click', (event) => {
+    document.querySelectorAll('#schema path').forEach((el) => el.addEventListener('touchstart', (event) => {
         document.querySelectorAll('.player')[event.target.getAttribute('noteindex')].play()
         event.target.classList.add('active')
         setInterval(() => event.target.classList.remove('active'), 1000)
@@ -180,14 +180,12 @@ document.getElementById('mode').addEventListener('change', (event) => {
     createSchema(totalNotes)
 })
 
-// if ('serviceWorker' in navigator) {
-//     navigator.serviceWorker.register('/sw.js').then(function(
-//         registration) {
-//         console.log('Registration successful, scope is:',
-//             registration.scope)
-//     }).catch(function(error) {
-//         console.log(
-//             'Service worker registration failed, error:',
-//             error);
-//     })
-// }
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').then(function(
+        registration) {
+        console.log('Registration successful, scope is:', registration.scope)
+    }).catch(function(error) {
+        console.log(
+            'Service worker registration failed, error:', error);
+    })
+}
