@@ -1,3 +1,5 @@
-App che permette di suonare il piano tenendo il telefono in tasca
+### App che permette di suonare il piano tenendo il telefono in tasca
 
-https://pianointasca.it
+Demo su https://pianointasca.it
+
+Descrizione dettagliata su https://figherie.it/app/pianointasca/
